@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "parallel-task-runner"
+version = "0.1.0"
+description = "A Python bolierplate for parallel task execution with controlled QPS/QPM"
+authors = ["naubull2 <naubull2@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.group.dev.dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
