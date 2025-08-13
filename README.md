@@ -1,16 +1,22 @@
 # parallel-task-runner
 
-A Python boilerplate for running IO bound tasks in parallel with controlled queries per second (QPS) or 
-queries per minute (QPM). This is usefull for scenarios where you need to process a large number of tasks
-such as making external API calls or systems while respecting the imposed rate limits.
+This script provides a high-performance, asyncio-based solution for running a large number of I/O-bound tasks (e.g., API calls) while maintaining strict control over the submission rate (QPS) and maximum concurrency via Token Bucket algorithm.
 
-## Features
- * **Rate Limiting:** Control the execution rate using either QPS or QPM.
- * **Parallel Execution:** Utilize multiple worker threads for efficient task processing.
- * **Modular Design:** Easily define and an plug in your own task logic.
- * **JSONL Output:** Write task results to a JSONL file (one JSON object per line) for easy analysis and storage.
- * **Error Handling:** Gracefully handles exceptions during task execution and logs errors to the output file.
- * **Configurable:** Configure the task runner using a simple dataclass.
+## Key Features
+
+- **Strict QPS Control:** Utilizes a Token Bucket algorithm to enforce a hard ceiling on the number of tasks started per second. This is crucial for respecting API rate limits.
+- **High Concurrency:** Built on `asyncio` for memory-efficient handling of thousands of concurrent operations.
+- **Fail-Safe Operation:** Includes automatic retries with exponential backoff for tasks that fail due to trasient errors.
+- **Lossless Processing:** Tasks that fail all retry attempts are collected and reported at the end, ensuring no input is silently lost.
+
+## When to Use It
+
+This module is particularly useful for:
+
+- Interacting with third-party APIs that have strict rate limits.
+- Batch-processing a large dataset against a web service.
+- Running web scraping tasks in a controlled and respectful manner.
+- Any high-volume, I/O-bound operation that needs to be throttled to prevent system overload.
 
 ## Installation
 ```bash
@@ -20,47 +26,23 @@ poetry install
 
 ## Usage
 
-Define your task: Create a class that inherits from `parallel_task_runner.worker.WorkerTask` and
-implement the `execute` method to perform your specific task. The `execute` method should accept task data
-as input and return a dictionary containing the results.
+The package's primary entry point is shown in the [demo.py](./demo.py) script. You can configure the run using the following arguments.
 
-Refer to the following sample code.
-[./my_script.py](./my_script.py)
- 
-```python
-from parallel_task_runner.config import Config
-from parallel_task_runner.worker import WorkerTask
-form parallel_task_runner.manager import TaskManager
+**Basic Example:**
 
-import time # used to simulate IO bound task
-
-class MyTask(WorkerTask):
-    def execute(self, task_data):
-        # Define your task
-        time.sleep(0.1)
-        return {"result": f"Processed: {task_data}"}
-
-config = Config(qps=10, output_file="results.jsonl", num_workers=4, total_tasks=100)
-
-my_task = MyTask()
-
-task_data = [f"Task {i}" for i in range(config.total_tasks)]
-for data in task_data:
-    task_manager.submit_task(data)
-
-task_manager.run()
-print("All tasks completed")
+```bash
+# Run 1000 tasks with a max QPS of 50 and max concurrency of 100
+python demo.py --tasks 1000 --qps 50 --concurrency 100
 ```
 
-## Configuration
+**Control Log Verbosity**
 
-The `Config` dataclass allows you to configure the task runner. Here's a description of the available options:
+To see detailed debug messages, such as retry attempts for failed takss, set the log level to `DEBUG`
 
-- `qps` (float, optional) : Queries per second. If specified, QPM is ignored.
-- `qpm` (float, optioanl) : Queries per minute. If specified, QPS is ignored.
-- `output_file` (str) : The path to the output JSONL file.
-- `num_workers` (int) : The number of worker threads to use.
-- `total_tasks` (int) : The total number of tasks to run (demonstration purpose only)
+```bash
+python demo.py --log-level DEBUG
+```
+
 
 # Contributing
 

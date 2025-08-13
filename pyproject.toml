@@ -1,15 +1,15 @@
 [tool.poetry]
-name = "parallel-task-runner"
+name = "async-runner"
 version = "0.1.0"
-description = "A Python bolierplate for parallel task execution with controlled QPS/QPM"
+description = "A Python bolierplate for parallel task execution with controlled QPS"
 authors = ["naubull2 <naubull2@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.7"
-
-[tool.poetry.group.dev.dependencies]
+python = ">=3.8"
+aiofiles = ">=23.2.1"
+tqdm = ">=4.66.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
